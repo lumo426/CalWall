@@ -15,11 +15,14 @@
 		A00000000000000000000007 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* ContentView.swift */; };
 		A00000000000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* Assets.xcassets */; };
 		A0000000000000000000000A /* WallpaperTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* WallpaperTheme.swift */; };
+		A0000000000000000000000B /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* AppLocalization.swift */; };
+		A0000000000000000000000C /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* AppPreferences.swift */; };
+		A0000000000000000000000D /* CustomScheduleItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* CustomScheduleItem.swift */; };
+		A0000000000000000000000E /* ScheduleDateTimeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* ScheduleDateTimeControls.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A00000000000000000000009 /* CalWall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalWall.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A00000000000000000000010 /* CalWall */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CalWall; sourceTree = "<group>"; };
 		A00000000000000000000011 /* CalWallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalWallApp.swift; sourceTree = "<group>"; };
 		A00000000000000000000012 /* CalendarEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
 		A00000000000000000000014 /* WallpaperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperService.swift; sourceTree = "<group>"; };
@@ -29,6 +32,10 @@
 		A00000000000000000000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A00000000000000000000019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A0000000000000000000001A /* WallpaperTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperTheme.swift; sourceTree = "<group>"; };
+		A0000000000000000000001B /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
+		A0000000000000000000001C /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		A0000000000000000000001D /* CustomScheduleItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScheduleItem.swift; sourceTree = "<group>"; };
+		A0000000000000000000001E /* ScheduleDateTimeControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleDateTimeControls.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +67,10 @@
 				A00000000000000000000014 /* WallpaperService.swift */,
 				A00000000000000000000015 /* WallpaperRenderer.swift */,
 				A0000000000000000000001A /* WallpaperTheme.swift */,
+				A0000000000000000000001B /* AppLocalization.swift */,
+				A0000000000000000000001C /* AppPreferences.swift */,
+				A0000000000000000000001D /* CustomScheduleItem.swift */,
+				A0000000000000000000001E /* ScheduleDateTimeControls.swift */,
 				A00000000000000000000018 /* Assets.xcassets */,
 				A00000000000000000000019 /* Info.plist */,
 			);
@@ -150,6 +161,10 @@
 				A00000000000000000000006 /* AppState.swift in Sources */,
 				A00000000000000000000007 /* ContentView.swift in Sources */,
 				A0000000000000000000000A /* WallpaperTheme.swift in Sources */,
+				A0000000000000000000000B /* AppLocalization.swift in Sources */,
+				A0000000000000000000000C /* AppPreferences.swift in Sources */,
+				A0000000000000000000000D /* CustomScheduleItem.swift in Sources */,
+				A0000000000000000000000E /* ScheduleDateTimeControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,8 +289,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = SVV52NNVT9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CalWall/Info.plist;
@@ -285,7 +300,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yeseon.CalWall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -298,8 +313,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = SVV52NNVT9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CalWall/Info.plist;
@@ -309,7 +324,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yeseon.CalWall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -320,20 +335,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A00000000000000000000029 /* Build configuration list for PBXProject "CalWall" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A00000000000000000000030 /* Debug */,
-				A00000000000000000000031 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A00000000000000000000025 /* Build configuration list for PBXNativeTarget "CalWall" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A00000000000000000000032 /* Debug */,
 				A00000000000000000000033 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000029 /* Build configuration list for PBXProject "CalWall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000030 /* Debug */,
+				A00000000000000000000031 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -8,14 +8,6 @@ enum WallpaperThemeFamily: String, CaseIterable, Identifiable, Codable {
 
     var id: String { rawValue }
 
-    var title: String {
-        switch self {
-        case .light: return "浅色"
-        case .dark: return "深色"
-        case .blue: return "蓝色"
-        }
-    }
-
     var supportsBlueVariant: Bool { self == .blue }
 }
 
@@ -24,13 +16,6 @@ enum BlueThemeVariant: String, CaseIterable, Identifiable, Codable {
     case dark
 
     var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .light: return "蓝色白天"
-        case .dark: return "蓝色黑夜"
-        }
-    }
 }
 
 struct ThemePalette {

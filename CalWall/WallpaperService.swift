@@ -5,9 +5,9 @@ final class WallpaperService {
     func updateWallpaper(
         events: [CalendarEvent],
         perspective: CalendarPerspective,
-        customText: String,
         themeFamily: WallpaperThemeFamily,
-        blueVariant: BlueThemeVariant
+        blueVariant: BlueThemeVariant,
+        language: AppLanguage
     ) throws -> URL {
         let screens = NSScreen.screens.isEmpty ? [NSScreen.main].compactMap { $0 } : NSScreen.screens
         guard let firstScreen = screens.first else {
@@ -27,11 +27,11 @@ final class WallpaperService {
                 date: Date(),
                 events: events,
                 perspective: perspective,
-                customText: customText,
                 canvasSize: pixelSize,
                 screenName: screen.localizedName,
                 themeFamily: themeFamily,
-                blueVariant: blueVariant
+                blueVariant: blueVariant,
+                language: language
             )
 
             var options = NSWorkspace.shared.desktopImageOptions(for: screen) ?? [:]
@@ -50,10 +50,14 @@ final class WallpaperService {
 enum WallpaperError: LocalizedError {
     case noScreen
 
-    var errorDescription: String? {
+    func localizedDescription(language: AppLanguage) -> String {
         switch self {
         case .noScreen:
-            return "No display was detected."
+            return L10n.text(.noDisplay, language: language)
         }
+    }
+
+    var errorDescription: String? {
+        localizedDescription(language: L10n.defaultLanguage())
     }
 }

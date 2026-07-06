@@ -3,8 +3,11 @@ import Foundation
 
 final class WallpaperRenderer {
     private static var palette = ThemePalette.light
+    private static var language = AppLanguage.english
 
-    static func render(date: Date, events: [CalendarEvent], perspective: CalendarPerspective, customText: String, canvasSize: CGSize, screenName: String, themeFamily: WallpaperThemeFamily, blueVariant: BlueThemeVariant) throws -> URL {
+    static func render(date: Date, events: [CalendarEvent], perspective: CalendarPerspective, canvasSize: CGSize, screenName: String, themeFamily: WallpaperThemeFamily, blueVariant: BlueThemeVariant, language: AppLanguage) throws -> URL {
+        self.language = language
+        configureFormatters(for: language.locale)
         palette = ThemePalette.resolve(family: themeFamily, blueVariant: blueVariant)
         let pixelsWide = max(1, Int(canvasSize.width.rounded()))
         let pixelsHigh = max(1, Int(canvasSize.height.rounded()))
@@ -149,12 +152,17 @@ final class WallpaperRenderer {
     }
 
     private static func perspectiveViewLabel(_ perspective: CalendarPerspective) -> String {
-        switch perspective {
-        case .day: return "Day view"
-        case .week: return "Week view"
-        case .month: return "Month view"
-        case .year: return "Year view"
-        }
+        perspective.wallpaperViewLabel(language: language)
+    }
+
+    private static func configureFormatters(for locale: Locale) {
+        monthAbbrevFormatter.locale = locale
+        monthTitleFormatter.locale = locale
+        weekTitleFormatter.locale = locale
+        yearTitleFormatter.locale = locale
+        dayTitleFormatter.locale = locale
+        daySubtitleFormatter.locale = locale
+        rangeFormatter.locale = locale
     }
 
     // MARK: - Calendar Grid
@@ -321,7 +329,7 @@ final class WallpaperRenderer {
 
         let eventCount = events.count
         if eventCount > 0 {
-            drawFittedText("\(eventCount) event\(eventCount == 1 ? "" : "s")", in: NSRect(x: rect.maxX - rect.width * 0.22, y: dayHeader.minY + 8, width: rect.width * 0.18, height: dayHeaderH - 16), maxFontSize: size.height * 0.014, minFontSize: size.height * 0.010, weight: .medium, color: palette.textMuted, alignment: .right)
+            drawFittedText(L10n.text(.wallpaperEventCount(eventCount), language: language), in: NSRect(x: rect.maxX - rect.width * 0.22, y: dayHeader.minY + 8, width: rect.width * 0.18, height: dayHeaderH - 16), maxFontSize: size.height * 0.014, minFontSize: size.height * 0.010, weight: .medium, color: palette.textMuted, alignment: .right)
         }
 
         for (index, hour) in hours.enumerated() {
@@ -420,7 +428,7 @@ final class WallpaperRenderer {
 
         if events.count > visible.count {
             let moreRect = NSRect(x: rect.minX, y: rect.minY, width: rect.width, height: pillHeight * 0.85)
-            drawFittedText("\(events.count - visible.count) more…", in: moreRect, maxFontSize: size.height * 0.011, minFontSize: size.height * 0.008, weight: .medium, color: palette.textMuted, alignment: .left)
+            drawFittedText(L10n.text(.wallpaperMoreEvents(events.count - visible.count), language: language), in: moreRect, maxFontSize: size.height * 0.011, minFontSize: size.height * 0.008, weight: .medium, color: palette.textMuted, alignment: .left)
         }
     }
 
@@ -452,8 +460,13 @@ final class WallpaperRenderer {
 
     private static func drawFooter(screenName: String, perspective: CalendarPerspective, size: CGSize) {
         let formatter = DateFormatter()
+        formatter.locale = language.locale
         formatter.dateFormat = "HH:mm"
-        let text = "CalWall · \(perspective.title) · updated \(formatter.string(from: Date())) · \(screenName)"
+        let time = formatter.string(from: Date())
+        let text = L10n.text(
+            .footerUpdated(perspective.title(language: language), time, screenName),
+            language: language
+        )
         let footerRect = NSRect(x: size.width * 0.04, y: size.height * 0.018, width: size.width * 0.92, height: size.height * 0.025)
         drawFittedText(text, in: footerRect, maxFontSize: size.height * 0.011, minFontSize: size.height * 0.008, weight: .regular, color: palette.textMuted, alignment: .left)
     }
@@ -469,7 +482,7 @@ final class WallpaperRenderer {
 
     private static func orderedWeekdaySymbols(calendar: Calendar) -> [String] {
         let formatter = DateFormatter()
-        formatter.locale = Locale.current
+        formatter.locale = language.locale
         let symbols = formatter.shortWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         let start = calendar.firstWeekday - 1
         return (0..<7).map { symbols[(start + $0) % 7] }
