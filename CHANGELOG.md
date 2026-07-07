@@ -4,14 +4,19 @@
 
 ## [Unreleased]
 
-### Added
+## [1.1.1] — 2026-07-07
 
-- **日程字号**设置：外观区域新增「小 / 标准 / 大 / 特大」四档，控制壁纸中日程标题与时间的显示大小（默认「大」）
-- 事件条高度随字号同步缩放，避免文字被裁切
+### Fixed
+
+- **日程字号**：以年视图为基准重新设计字号体系，整体缩小；特大档不再异常放大
+- **日视图**：事件块对齐时间刻度，标题与时间横向单行显示
+- **周视图**：修复日程块上浮与日期重叠；同列字号统一
+- **月视图**：限制每格最多 3 条日程，减少文字挤占
 
 ### Changed
 
-- 壁纸事件文字基准字号略微上调，周/月视图默认可读性更好
+- 字号档位：小 0.90× / 标准 1.0× / 大 1.06× / 特大 1.12×（默认标准）
+- 窄列自动换行，宽列（日视图）保持单行
 
 ## [1.1.0] — 2026-07-06
 
@@ -47,6 +52,7 @@ GitHub Release: [v.1.0.0](https://github.com/lumo426/CalWall/releases/tag/v.1.0.
 - 每 30 分钟自动刷新壁纸
 - 纯本地运行，不读取 Apple 日历
 
-[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/lumo426/CalWall/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/lumo426/CalWall/compare/v.1.0.0...v1.1.0
 [1.0.0]: https://github.com/lumo426/CalWall/releases/tag/v.1.0.0

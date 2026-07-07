@@ -46,7 +46,7 @@ final class AppState: ObservableObject {
     @Published var selectedPerspective: CalendarPerspective = .day
     @Published var themeFamily: WallpaperThemeFamily = .light
     @Published var blueVariant: BlueThemeVariant = .light
-    @Published var eventFontScale: WallpaperEventFontScale = .large
+    @Published var eventFontScale: WallpaperEventFontScale = .standard
     @Published var launchAtLogin = false
     @Published var autoRefreshInterval: AutoRefreshInterval = .thirty
 

@@ -220,7 +220,6 @@ final class WallpaperRenderer {
         let eventZoneTopInset = dateNumberZoneH + cellH * 0.04
         let pillH = scaledPillHeight(0.022, canvas: size)
         let pillGap = scaledPillHeight(0.005, canvas: size)
-        let maxPills = max(1, Int((cellH - eventZoneTopInset - pillH * 0.6) / (pillH + pillGap)))
 
         for index in 0..<42 {
             guard let day = calendar.date(byAdding: .day, value: index, to: firstWeek.start) else { continue }
@@ -249,8 +248,17 @@ final class WallpaperRenderer {
             }
 
             let todays = grouped[calendar.startOfDay(for: day)] ?? []
-            let eventRect = NSRect(x: cell.minX + 6, y: cell.minY + pillH * 0.5, width: cell.width - 12, height: cell.height - eventZoneTopInset - pillH * 0.5)
-            drawEventPills(todays, in: eventRect, maxItems: maxPills, pillHeight: pillH, pillGap: pillGap, size: size)
+            let eventTop = cell.maxY - eventZoneTopInset - 2
+            let eventRect = NSRect(x: cell.minX + 6, y: cell.minY + 4, width: cell.width - 12, height: max(12, eventTop - cell.minY - 4))
+            drawEventPills(
+                todays,
+                in: eventRect,
+                maxItems: 3,
+                pillHeight: pillH,
+                pillGap: pillGap,
+                size: size,
+                compact: true
+            )
         }
     }
 
@@ -299,10 +307,19 @@ final class WallpaperRenderer {
                 drawFittedText("\(calendar.component(.day, from: day))", in: dayNumRect, maxFontSize: size.height * 0.022, minFontSize: size.height * 0.014, weight: .semibold, color: palette.textPrimary, alignment: .center)
             }
 
-            let eventAreaH = rect.height - headerH - pillH
-            let maxPills = max(1, Int((eventAreaH - pillH) / (pillH + pillGap)))
-            let eventRect = NSRect(x: cell.minX + 8, y: cell.minY + pillH * 0.4, width: cell.width - 16, height: eventAreaH)
-            drawEventPills(grouped[calendar.startOfDay(for: day)] ?? [], in: eventRect, maxItems: maxPills, pillHeight: pillH, pillGap: pillGap, size: size)
+            let topGap = max(10, pillGap * 3)
+            let eventBottom = cell.minY + 6
+            let eventTop = cell.maxY - headerH - topGap
+            let eventAreaH = max(20, eventTop - eventBottom)
+            let eventRect = NSRect(x: cell.minX + 8, y: eventBottom, width: cell.width - 16, height: eventAreaH)
+            drawEventPills(
+                grouped[calendar.startOfDay(for: day)] ?? [],
+                in: eventRect,
+                maxItems: 20,
+                pillHeight: pillH,
+                pillGap: pillGap,
+                size: size
+            )
         }
     }
 
@@ -346,18 +363,28 @@ final class WallpaperRenderer {
         }
 
         let sorted = events.sorted { $0.startDate < $1.startDate }
-        for event in sorted {
+        let fonts = resolveEventFonts(canvas: size, columnWidth: contentW)
+        for (index, event) in sorted.enumerated() {
             var hour = calendar.component(.hour, from: event.startDate)
             let minute = calendar.component(.minute, from: event.startDate)
             if event.isAllDay || hour < hours.first! || hour > hours.last! {
                 hour = hours.first!
             }
             let hourIndex = hour - hours.first!
-            let fraction = event.isAllDay ? 0 : CGFloat(minute) / 60.0
-            let y = rect.maxY - dayHeaderH - (CGFloat(hourIndex) + fraction + 1) * rowH
-            let pillH = min(rowH * 0.75, scaledPillHeight(0.028, canvas: size))
-            let pillRect = NSRect(x: contentX + 12, y: y, width: contentW - 24, height: pillH)
-            drawSingleEventPill(event, in: pillRect, size: size, showTime: !event.isAllDay)
+            let rowTop = rect.maxY - dayHeaderH - CGFloat(hourIndex) * rowH
+            let offsetInHour = event.isAllDay ? 0 : CGFloat(minute) / 60.0 * rowH
+            let pillH = min(rowH * 0.78, fonts.title * 2.4)
+            let pillY = rowTop - offsetInHour - pillH
+            let pillRect = NSRect(x: contentX + 12, y: pillY, width: contentW - 24, height: pillH)
+            drawSingleEventPill(
+                event,
+                in: pillRect,
+                showTime: !event.isAllDay,
+                colorIndex: index,
+                fonts: fonts,
+                preferInline: true,
+                maxTitleLines: 1
+            )
         }
     }
 
@@ -416,46 +443,275 @@ final class WallpaperRenderer {
 
     // MARK: - Events
 
-    private static func drawEventPills(_ events: [CalendarEvent], in rect: NSRect, maxItems: Int, pillHeight: CGFloat, pillGap: CGFloat, size: CGSize, compact: Bool = false) {
+    private struct EventFonts {
+        let title: CGFloat
+        let time: CGFloat
+    }
+
+    private static func drawEventPills(
+        _ events: [CalendarEvent],
+        in rect: NSRect,
+        maxItems: Int,
+        pillHeight: CGFloat,
+        pillGap: CGFloat,
+        size: CGSize,
+        compact: Bool = false
+    ) {
         guard !events.isEmpty else { return }
+        let showTime = !compact
+        let fonts = resolveEventFonts(canvas: size, columnWidth: rect.width)
         let visible = Array(events.prefix(maxItems))
-        var y = rect.maxY - pillHeight
+        var y = rect.maxY
+        var rendered = 0
 
         for (index, event) in visible.enumerated() {
+            let height = eventPillHeight(
+                for: event,
+                width: rect.width,
+                fonts: fonts,
+                showTime: showTime,
+                maxTitleLines: compact ? 1 : 2
+            )
+            y -= height
             guard y >= rect.minY else { break }
-            let pillRect = NSRect(x: rect.minX, y: y, width: rect.width, height: pillHeight)
-            drawSingleEventPill(event, in: pillRect, size: size, showTime: !compact, colorIndex: index)
-            y -= pillHeight + pillGap
+
+            let pillRect = NSRect(x: rect.minX, y: y, width: rect.width, height: height)
+            drawSingleEventPill(
+                event,
+                in: pillRect,
+                showTime: showTime,
+                colorIndex: index,
+                fonts: fonts,
+                preferInline: false,
+                maxTitleLines: compact ? 1 : 2
+            )
+            rendered += 1
+            y -= pillGap
         }
 
-        if events.count > visible.count {
-            let moreRect = NSRect(x: rect.minX, y: rect.minY, width: rect.width, height: pillHeight * 0.85)
-            drawFittedText(L10n.text(.wallpaperMoreEvents(events.count - visible.count), language: language), in: moreRect, maxFontSize: eventFontMax(0.012, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: palette.textMuted, alignment: .left)
+        if events.count > rendered {
+            let moreRect = NSRect(x: rect.minX, y: rect.minY, width: rect.width, height: fonts.title * 1.4)
+            drawWrappedText(
+                L10n.text(.wallpaperMoreEvents(events.count - rendered), language: language),
+                in: moreRect,
+                fontSize: fonts.time,
+                weight: .medium,
+                color: palette.textMuted,
+                alignment: .left,
+                maxLines: 1
+            )
         }
     }
 
-    private static func drawSingleEventPill(_ event: CalendarEvent, in rect: NSRect, size: CGSize, showTime: Bool, colorIndex: Int = 0) {
+    private static func drawSingleEventPill(
+        _ event: CalendarEvent,
+        in rect: NSRect,
+        showTime: Bool,
+        colorIndex: Int,
+        fonts: EventFonts,
+        preferInline: Bool,
+        maxTitleLines: Int
+    ) {
         let colors = palette.eventColors[colorIndex % palette.eventColors.count]
         let pillRect = rect.insetBy(dx: 0, dy: 1)
         colors.bg.setFill()
-        NSBezierPath(roundedRect: pillRect, xRadius: 6, yRadius: 6).fill()
+        NSBezierPath(roundedRect: pillRect, xRadius: 5, yRadius: 5).fill()
 
         let timeFormatter = DateFormatter()
+        timeFormatter.locale = language.locale
         timeFormatter.dateFormat = event.isAllDay ? "" : "HH:mm"
         let timeStr = event.isAllDay ? "" : timeFormatter.string(from: event.startDate)
 
-        let padding: CGFloat = 8
-        var titleW = pillRect.width - padding * 2
-        if showTime, !timeStr.isEmpty {
-            let timeW = pillRect.width * 0.28
-            let timeRect = NSRect(x: pillRect.maxX - timeW - padding / 2, y: pillRect.minY, width: timeW, height: pillRect.height)
-            drawFittedText(timeStr, in: timeRect, maxFontSize: eventFontMax(0.012, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: colors.fg.withAlphaComponent(0.85), alignment: .right)
-            titleW = pillRect.width - timeW - padding * 2
+        let padding: CGFloat = 6
+        let lineGap: CGFloat = 2
+        let contentW = pillRect.width - padding * 2
+
+        let useInline = preferInline || shouldUseInlineLayout(
+            title: event.title,
+            timeStr: showTime ? timeStr : "",
+            contentWidth: contentW,
+            titleFontSize: fonts.title,
+            timeFontSize: fonts.time
+        )
+
+        if useInline {
+            drawInlineEventContent(
+                title: event.title,
+                timeStr: showTime ? timeStr : "",
+                in: pillRect,
+                padding: padding,
+                titleFontSize: fonts.title,
+                timeFontSize: fonts.time,
+                colors: colors
+            )
+        } else {
+            drawStackedEventContent(
+                title: event.title,
+                timeStr: showTime ? timeStr : "",
+                in: pillRect,
+                padding: padding,
+                lineGap: lineGap,
+                contentW: contentW,
+                titleFontSize: fonts.title,
+                timeFontSize: fonts.time,
+                colors: colors,
+                maxTitleLines: maxTitleLines
+            )
+        }
+    }
+
+    private static func shouldUseInlineLayout(
+        title: String,
+        timeStr: String,
+        contentWidth: CGFloat,
+        titleFontSize: CGFloat,
+        timeFontSize: CGFloat
+    ) -> Bool {
+        let timeWidth = timeStr.isEmpty ? 0 : singleLineTextWidth(timeStr, fontSize: timeFontSize, weight: .medium) + 8
+        let titleWidth = singleLineTextWidth(title, fontSize: titleFontSize, weight: .medium)
+        return titleWidth + timeWidth <= contentWidth
+    }
+
+    private static func drawInlineEventContent(
+        title: String,
+        timeStr: String,
+        in pillRect: NSRect,
+        padding: CGFloat,
+        titleFontSize: CGFloat,
+        timeFontSize: CGFloat,
+        colors: (bg: NSColor, fg: NSColor)
+    ) {
+        let lineH = titleFontSize * 1.2
+        let contentY = pillRect.minY + max(padding * 0.5, (pillRect.height - lineH) * 0.5)
+        let contentRect = NSRect(x: pillRect.minX + padding, y: contentY, width: pillRect.width - padding * 2, height: lineH)
+        var titleW = contentRect.width
+
+        if !timeStr.isEmpty {
+            let timeW = max(40, singleLineTextWidth(timeStr, fontSize: timeFontSize, weight: .medium) + 6)
+            let timeRect = NSRect(x: contentRect.maxX - timeW, y: contentRect.minY, width: timeW, height: contentRect.height)
+            drawWrappedText(
+                timeStr,
+                in: timeRect,
+                fontSize: timeFontSize,
+                weight: .medium,
+                color: colors.fg.withAlphaComponent(0.85),
+                alignment: .right,
+                maxLines: 1
+            )
+            titleW = contentRect.width - timeW - 4
         }
 
-        let title = event.title
-        let titleRect = NSRect(x: pillRect.minX + padding, y: pillRect.minY, width: max(20, titleW), height: pillRect.height)
-        drawFittedText(title, in: titleRect, maxFontSize: eventFontMax(0.013, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: colors.fg, alignment: .left, truncate: true)
+        let titleRect = NSRect(x: contentRect.minX, y: contentRect.minY, width: max(20, titleW), height: contentRect.height)
+        drawWrappedText(
+            title,
+            in: titleRect,
+            fontSize: titleFontSize,
+            weight: .medium,
+            color: colors.fg,
+            alignment: .left,
+            maxLines: 1
+        )
+    }
+
+    private static func drawStackedEventContent(
+        title: String,
+        timeStr: String,
+        in pillRect: NSRect,
+        padding: CGFloat,
+        lineGap: CGFloat,
+        contentW: CGFloat,
+        titleFontSize: CGFloat,
+        timeFontSize: CGFloat,
+        colors: (bg: NSColor, fg: NSColor),
+        maxTitleLines: Int
+    ) {
+        let titleLineH = wrappedTextHeight(title, width: contentW, fontSize: titleFontSize, weight: .medium, maxLines: maxTitleLines)
+        let timeLineH = timeStr.isEmpty ? 0 : timeFontSize * 1.15
+        let contentH = titleLineH + (timeStr.isEmpty ? 0 : lineGap + timeLineH)
+        let verticalPad = max(4, (pillRect.height - contentH) * 0.5)
+        var cursorY = pillRect.maxY - verticalPad
+
+        cursorY -= titleLineH
+        drawWrappedText(
+            title,
+            in: NSRect(x: pillRect.minX + padding, y: cursorY, width: contentW, height: titleLineH),
+            fontSize: titleFontSize,
+            weight: .medium,
+            color: colors.fg,
+            alignment: .left,
+            maxLines: maxTitleLines
+        )
+
+        if !timeStr.isEmpty {
+            cursorY -= lineGap + timeLineH
+            drawWrappedText(
+                timeStr,
+                in: NSRect(x: pillRect.minX + padding, y: cursorY, width: contentW, height: timeLineH),
+                fontSize: timeFontSize,
+                weight: .medium,
+                color: colors.fg.withAlphaComponent(0.85),
+                alignment: .left,
+                maxLines: 1
+            )
+        }
+    }
+
+    private static func eventPillHeight(
+        for event: CalendarEvent,
+        width: CGFloat,
+        fonts: EventFonts,
+        showTime: Bool,
+        maxTitleLines: Int
+    ) -> CGFloat {
+        let padding: CGFloat = 6
+        let lineGap: CGFloat = 2
+        let contentW = max(20, width - padding * 2)
+        let minHeight = fonts.title * 1.8
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.locale = language.locale
+        timeFormatter.dateFormat = "HH:mm"
+        let timeStr = showTime && !event.isAllDay ? timeFormatter.string(from: event.startDate) : ""
+
+        if shouldUseInlineLayout(
+            title: event.title,
+            timeStr: timeStr,
+            contentWidth: contentW,
+            titleFontSize: fonts.title,
+            timeFontSize: fonts.time
+        ) {
+            return max(minHeight, ceil(fonts.title * 1.35 + padding))
+        }
+
+        var height = padding
+        height += wrappedTextHeight(
+            event.title,
+            width: contentW,
+            fontSize: fonts.title,
+            weight: .medium,
+            maxLines: maxTitleLines
+        )
+        if !timeStr.isEmpty {
+            height += lineGap + fonts.time * 1.15
+        }
+        height += padding
+        return max(minHeight, ceil(height))
+    }
+
+    /// Year-view baseline: ~0.011 of canvas height, with gentle scale steps.
+    private static func resolveEventFonts(canvas: CGSize, columnWidth: CGFloat) -> EventFonts {
+        let yearBaseline = canvas.height * 0.011
+        let scaled = yearBaseline * eventFontScale
+        let absoluteMax = canvas.height * 0.0125
+        let widthCap = columnWidth * 0.075
+        let title = max(9, min(scaled, absoluteMax, widthCap))
+        let time = title * 0.88
+        return EventFonts(title: title, time: time)
+    }
+
+    private static func singleLineTextWidth(_ text: String, fontSize: CGFloat, weight: NSFont.Weight) -> CGFloat {
+        let font = NSFont.systemFont(ofSize: fontSize, weight: weight)
+        return ceil((text as NSString).size(withAttributes: [.font: font]).width)
     }
 
     // MARK: - Footer
@@ -476,7 +732,7 @@ final class WallpaperRenderer {
     // MARK: - Drawing Helpers
 
     private static func scaledPillHeight(_ base: CGFloat, canvas: CGSize) -> CGFloat {
-        canvas.height * base * eventFontScale
+        canvas.height * base
     }
 
     private static func eventFontMax(_ base: CGFloat, canvas: CGSize) -> CGFloat {
@@ -500,6 +756,59 @@ final class WallpaperRenderer {
         let symbols = formatter.shortWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         let start = calendar.firstWeekday - 1
         return (0..<7).map { symbols[(start + $0) % 7] }
+    }
+
+    private static func drawWrappedText(
+        _ text: String,
+        in rect: NSRect,
+        fontSize: CGFloat,
+        weight: NSFont.Weight,
+        color: NSColor,
+        alignment: NSTextAlignment,
+        maxLines: Int
+    ) {
+        guard !text.isEmpty else { return }
+        let font = NSFont.systemFont(ofSize: fontSize, weight: weight)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
+        paragraph.lineBreakMode = .byCharWrapping
+        paragraph.lineSpacing = 1
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: color,
+            .paragraphStyle: paragraph
+        ]
+        (text as NSString).draw(
+            with: rect,
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attributes
+        )
+    }
+
+    private static func wrappedTextHeight(
+        _ text: String,
+        width: CGFloat,
+        fontSize: CGFloat,
+        weight: NSFont.Weight,
+        maxLines: Int
+    ) -> CGFloat {
+        guard !text.isEmpty else { return 0 }
+        let font = NSFont.systemFont(ofSize: fontSize, weight: weight)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byCharWrapping
+        paragraph.lineSpacing = 1
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraph
+        ]
+        let bounds = (text as NSString).boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attributes
+        )
+        let lineHeight = font.ascender - font.descender + font.leading + 1
+        let maxHeight = lineHeight * CGFloat(max(1, maxLines))
+        return min(ceil(bounds.height), maxHeight)
     }
 
     private static func drawFittedText(

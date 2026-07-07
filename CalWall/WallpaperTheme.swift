@@ -28,10 +28,10 @@ enum WallpaperEventFontScale: String, CaseIterable, Identifiable, Codable {
 
     var multiplier: CGFloat {
         switch self {
-        case .small: return 0.85
+        case .small: return 0.90
         case .standard: return 1.0
-        case .large: return 1.3
-        case .extraLarge: return 1.6
+        case .large: return 1.06
+        case .extraLarge: return 1.12
         }
     }
 
@@ -176,7 +176,7 @@ final class WallpaperThemeStore {
     var eventFontScale: WallpaperEventFontScale {
         get {
             guard let raw = defaults.string(forKey: eventFontScaleKey),
-                  let value = WallpaperEventFontScale(rawValue: raw) else { return .large }
+                  let value = WallpaperEventFontScale(rawValue: raw) else { return .standard }
             return value
         }
         set { defaults.set(newValue.rawValue, forKey: eventFontScaleKey) }
