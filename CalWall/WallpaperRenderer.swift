@@ -366,20 +366,18 @@ final class WallpaperRenderer {
         let fonts = resolveEventFonts(canvas: size, columnWidth: contentW)
         for (index, event) in sorted.enumerated() {
             var hour = calendar.component(.hour, from: event.startDate)
-            let minute = calendar.component(.minute, from: event.startDate)
             if event.isAllDay || hour < hours.first! || hour > hours.last! {
                 hour = hours.first!
             }
             let hourIndex = hour - hours.first!
-            let rowTop = rect.maxY - dayHeaderH - CGFloat(hourIndex) * rowH
-            let offsetInHour = event.isAllDay ? 0 : CGFloat(minute) / 60.0 * rowH
-            let pillH = min(rowH * 0.78, fonts.title * 2.4)
-            let pillY = rowTop - offsetInHour - pillH
+            let rowBottom = rect.maxY - dayHeaderH - CGFloat(hourIndex + 1) * rowH
+            let pillH = min(rowH * 0.68, fonts.title * 2.2)
+            let pillY = rowBottom + (rowH - pillH) * 0.5
             let pillRect = NSRect(x: contentX + 12, y: pillY, width: contentW - 24, height: pillH)
             drawSingleEventPill(
                 event,
                 in: pillRect,
-                showTime: !event.isAllDay,
+                showTime: false,
                 colorIndex: index,
                 fonts: fonts,
                 preferInline: true,

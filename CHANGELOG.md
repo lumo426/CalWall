@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.1.2] — 2026-07-07
+
+### Fixed
+
+- **日视图**：事件块在对应小时行内垂直居中，修复蓝色/粉色块上浮问题
+
 ## [1.1.1] — 2026-07-07
 
 ### Fixed
@@ -52,7 +58,8 @@ GitHub Release: [v.1.0.0](https://github.com/lumo426/CalWall/releases/tag/v.1.0.
 - 每 30 分钟自动刷新壁纸
 - 纯本地运行，不读取 Apple 日历
 
-[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/lumo426/CalWall/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/lumo426/CalWall/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/lumo426/CalWall/compare/v.1.0.0...v1.1.0
 [1.0.0]: https://github.com/lumo426/CalWall/releases/tag/v.1.0.0
