@@ -362,28 +362,77 @@ final class WallpaperRenderer {
             drawFittedText(String(format: "%02d:00", hour), in: timeRect, maxFontSize: size.height * 0.013, minFontSize: size.height * 0.009, weight: .regular, color: palette.textMuted, alignment: .right)
         }
 
-        let sorted = events.sorted { $0.startDate < $1.startDate }
         let fonts = resolveEventFonts(canvas: size, columnWidth: contentW)
-        for (index, event) in sorted.enumerated() {
+        let grouped = Dictionary(grouping: events.sorted { $0.startDate < $1.startDate }) { event -> Int in
             var hour = calendar.component(.hour, from: event.startDate)
             if event.isAllDay || hour < hours.first! || hour > hours.last! {
                 hour = hours.first!
             }
-            let hourIndex = hour - hours.first!
-            let rowBottom = rect.maxY - dayHeaderH - CGFloat(hourIndex + 1) * rowH
-            let pillH = min(rowH * 0.68, fonts.title * 2.2)
-            let pillY = rowBottom + (rowH - pillH) * 0.5
-            let pillRect = NSRect(x: contentX + 12, y: pillY, width: contentW - 24, height: pillH)
-            drawSingleEventPill(
-                event,
-                in: pillRect,
-                showTime: false,
-                colorIndex: index,
-                fonts: fonts,
-                preferInline: true,
-                maxTitleLines: 1
-            )
+            return hour
         }
+
+        for (index, hour) in hours.enumerated() {
+            guard let hourEvents = grouped[hour], !hourEvents.isEmpty else { continue }
+            let y = rect.maxY - dayHeaderH - CGFloat(index + 1) * rowH
+            let contentRow = NSRect(x: contentX, y: y, width: contentW, height: rowH)
+            for (eventIndex, event) in hourEvents.enumerated() {
+                drawDayEventPill(
+                    event,
+                    in: contentRow,
+                    slotIndex: eventIndex,
+                    slotCount: hourEvents.count,
+                    fonts: fonts,
+                    colorIndex: events.firstIndex(where: { $0.id == event.id }) ?? eventIndex
+                )
+            }
+        }
+    }
+
+    private static func drawDayEventPill(
+        _ event: CalendarEvent,
+        in row: NSRect,
+        slotIndex: Int,
+        slotCount: Int,
+        fonts: EventFonts,
+        colorIndex: Int
+    ) {
+        let colors = palette.eventColors[colorIndex % palette.eventColors.count]
+        let slotH = row.height / CGFloat(max(1, slotCount))
+        let slotY = row.minY + slotH * CGFloat(slotIndex)
+        let slot = NSRect(x: row.minX, y: slotY, width: row.width, height: slotH)
+
+        let pillH = slot.height * 0.62
+        let pillW = slot.width - 24
+        let pillRect = NSRect(
+            x: slot.minX + 12,
+            y: slot.midY - pillH * 0.5,
+            width: pillW,
+            height: pillH
+        )
+
+        colors.bg.setFill()
+        NSBezierPath(roundedRect: pillRect, xRadius: 5, yRadius: 5).fill()
+
+        let font = NSFont.systemFont(ofSize: fonts.title, weight: .medium)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byTruncatingTail
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: colors.fg,
+            .paragraphStyle: paragraph
+        ]
+        let bounds = (event.title as NSString).boundingRect(
+            with: CGSize(width: pillRect.width - 16, height: pillRect.height),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attributes
+        )
+        let textRect = NSRect(
+            x: pillRect.minX + 8,
+            y: pillRect.midY - bounds.height * 0.5,
+            width: pillRect.width - 16,
+            height: bounds.height
+        )
+        (event.title as NSString).draw(in: textRect, withAttributes: attributes)
     }
 
     // MARK: - Year Board
