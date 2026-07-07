@@ -18,6 +18,37 @@ enum BlueThemeVariant: String, CaseIterable, Identifiable, Codable {
     var id: String { rawValue }
 }
 
+enum WallpaperEventFontScale: String, CaseIterable, Identifiable, Codable {
+    case small
+    case standard
+    case large
+    case extraLarge
+
+    var id: String { rawValue }
+
+    var multiplier: CGFloat {
+        switch self {
+        case .small: return 0.85
+        case .standard: return 1.0
+        case .large: return 1.3
+        case .extraLarge: return 1.6
+        }
+    }
+
+    func title(language: AppLanguage) -> String {
+        switch self {
+        case .small:
+            return L10n.text(.eventFontSmall, language: language)
+        case .standard:
+            return L10n.text(.eventFontStandard, language: language)
+        case .large:
+            return L10n.text(.eventFontLarge, language: language)
+        case .extraLarge:
+            return L10n.text(.eventFontExtraLarge, language: language)
+        }
+    }
+}
+
 struct ThemePalette {
     let background: NSColor
     let backgroundSubtle: NSColor
@@ -122,6 +153,7 @@ final class WallpaperThemeStore {
     private let defaults = UserDefaults.standard
     private let familyKey = "CalWall.ThemeFamily"
     private let blueVariantKey = "CalWall.BlueThemeVariant"
+    private let eventFontScaleKey = "CalWall.EventFontScale"
 
     var themeFamily: WallpaperThemeFamily {
         get {
@@ -139,5 +171,14 @@ final class WallpaperThemeStore {
             return value
         }
         set { defaults.set(newValue.rawValue, forKey: blueVariantKey) }
+    }
+
+    var eventFontScale: WallpaperEventFontScale {
+        get {
+            guard let raw = defaults.string(forKey: eventFontScaleKey),
+                  let value = WallpaperEventFontScale(rawValue: raw) else { return .large }
+            return value
+        }
+        set { defaults.set(newValue.rawValue, forKey: eventFontScaleKey) }
     }
 }

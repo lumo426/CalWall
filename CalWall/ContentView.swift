@@ -78,6 +78,17 @@ struct ContentView: View {
                     .labelsHidden()
                     .disabled(appState.isWorking)
                 }
+
+                Text(L10n.text(.eventFontSize, language: lang))
+                    .font(.subheadline.weight(.medium))
+                Picker(L10n.text(.eventFontSize, language: lang), selection: $appState.eventFontScale) {
+                    ForEach(WallpaperEventFontScale.allCases) { scale in
+                        Text(scale.title(language: lang)).tag(scale)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .disabled(appState.isWorking)
             }
 
             VStack(alignment: .leading, spacing: 10) {
@@ -255,6 +266,9 @@ struct ContentView: View {
         }
         .onChange(of: appState.blueVariant) { old, new in
             appState.handleBlueVariantChange(from: old, to: new)
+        }
+        .onChange(of: appState.eventFontScale) { old, new in
+            appState.handleEventFontScaleChange(from: old, to: new)
         }
         .onChange(of: appState.launchAtLogin) { old, new in
             appState.handleLaunchAtLoginChange(from: old, to: new)

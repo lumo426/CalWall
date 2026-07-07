@@ -4,9 +4,11 @@ import Foundation
 final class WallpaperRenderer {
     private static var palette = ThemePalette.light
     private static var language = AppLanguage.english
+    private static var eventFontScale: CGFloat = 1.0
 
-    static func render(date: Date, events: [CalendarEvent], perspective: CalendarPerspective, canvasSize: CGSize, screenName: String, themeFamily: WallpaperThemeFamily, blueVariant: BlueThemeVariant, language: AppLanguage) throws -> URL {
+    static func render(date: Date, events: [CalendarEvent], perspective: CalendarPerspective, canvasSize: CGSize, screenName: String, themeFamily: WallpaperThemeFamily, blueVariant: BlueThemeVariant, eventFontScale: WallpaperEventFontScale, language: AppLanguage) throws -> URL {
         self.language = language
+        self.eventFontScale = eventFontScale.multiplier
         configureFormatters(for: language.locale)
         palette = ThemePalette.resolve(family: themeFamily, blueVariant: blueVariant)
         let pixelsWide = max(1, Int(canvasSize.width.rounded()))
@@ -216,8 +218,8 @@ final class WallpaperRenderer {
 
         let dateNumberZoneH = cellH * 0.22
         let eventZoneTopInset = dateNumberZoneH + cellH * 0.04
-        let pillH = size.height * 0.022
-        let pillGap = size.height * 0.005
+        let pillH = scaledPillHeight(0.022, canvas: size)
+        let pillGap = scaledPillHeight(0.005, canvas: size)
         let maxPills = max(1, Int((cellH - eventZoneTopInset - pillH * 0.6) / (pillH + pillGap)))
 
         for index in 0..<42 {
@@ -265,8 +267,8 @@ final class WallpaperRenderer {
         weekdayFormatter.locale = Locale.current
         weekdayFormatter.dateFormat = "EEE"
 
-        let pillH = size.height * 0.024
-        let pillGap = size.height * 0.006
+        let pillH = scaledPillHeight(0.024, canvas: size)
+        let pillGap = scaledPillHeight(0.006, canvas: size)
 
         for i in 0..<7 {
             guard let day = calendar.date(byAdding: .day, value: i, to: interval.start) else { continue }
@@ -353,7 +355,7 @@ final class WallpaperRenderer {
             let hourIndex = hour - hours.first!
             let fraction = event.isAllDay ? 0 : CGFloat(minute) / 60.0
             let y = rect.maxY - dayHeaderH - (CGFloat(hourIndex) + fraction + 1) * rowH
-            let pillH = min(rowH * 0.75, size.height * 0.028)
+            let pillH = min(rowH * 0.75, scaledPillHeight(0.028, canvas: size))
             let pillRect = NSRect(x: contentX + 12, y: y, width: contentW - 24, height: pillH)
             drawSingleEventPill(event, in: pillRect, size: size, showTime: !event.isAllDay)
         }
@@ -374,8 +376,8 @@ final class WallpaperRenderer {
         monthFormatter.dateFormat = "MMMM"
 
         let headerH = cellH * 0.18
-        let pillH = size.height * 0.018
-        let pillGap = size.height * 0.004
+        let pillH = scaledPillHeight(0.018, canvas: size)
+        let pillGap = scaledPillHeight(0.004, canvas: size)
 
         for month in 1...12 {
             var comps = DateComponents()
@@ -428,7 +430,7 @@ final class WallpaperRenderer {
 
         if events.count > visible.count {
             let moreRect = NSRect(x: rect.minX, y: rect.minY, width: rect.width, height: pillHeight * 0.85)
-            drawFittedText(L10n.text(.wallpaperMoreEvents(events.count - visible.count), language: language), in: moreRect, maxFontSize: size.height * 0.011, minFontSize: size.height * 0.008, weight: .medium, color: palette.textMuted, alignment: .left)
+            drawFittedText(L10n.text(.wallpaperMoreEvents(events.count - visible.count), language: language), in: moreRect, maxFontSize: eventFontMax(0.012, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: palette.textMuted, alignment: .left)
         }
     }
 
@@ -447,13 +449,13 @@ final class WallpaperRenderer {
         if showTime, !timeStr.isEmpty {
             let timeW = pillRect.width * 0.28
             let timeRect = NSRect(x: pillRect.maxX - timeW - padding / 2, y: pillRect.minY, width: timeW, height: pillRect.height)
-            drawFittedText(timeStr, in: timeRect, maxFontSize: size.height * 0.010, minFontSize: size.height * 0.007, weight: .medium, color: colors.fg.withAlphaComponent(0.85), alignment: .right)
+            drawFittedText(timeStr, in: timeRect, maxFontSize: eventFontMax(0.012, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: colors.fg.withAlphaComponent(0.85), alignment: .right)
             titleW = pillRect.width - timeW - padding * 2
         }
 
         let title = event.title
         let titleRect = NSRect(x: pillRect.minX + padding, y: pillRect.minY, width: max(20, titleW), height: pillRect.height)
-        drawFittedText(title, in: titleRect, maxFontSize: size.height * 0.011, minFontSize: size.height * 0.007, weight: .medium, color: colors.fg, alignment: .left, truncate: true)
+        drawFittedText(title, in: titleRect, maxFontSize: eventFontMax(0.013, canvas: size), minFontSize: eventFontMin(0.009, canvas: size), weight: .medium, color: colors.fg, alignment: .left, truncate: true)
     }
 
     // MARK: - Footer
@@ -472,6 +474,18 @@ final class WallpaperRenderer {
     }
 
     // MARK: - Drawing Helpers
+
+    private static func scaledPillHeight(_ base: CGFloat, canvas: CGSize) -> CGFloat {
+        canvas.height * base * eventFontScale
+    }
+
+    private static func eventFontMax(_ base: CGFloat, canvas: CGSize) -> CGFloat {
+        canvas.height * base * eventFontScale
+    }
+
+    private static func eventFontMin(_ base: CGFloat, canvas: CGSize) -> CGFloat {
+        canvas.height * base * eventFontScale
+    }
 
     private static func strokeCellBorder(_ rect: NSRect) {
         palette.border.setStroke()

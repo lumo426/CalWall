@@ -46,6 +46,7 @@ final class AppState: ObservableObject {
     @Published var selectedPerspective: CalendarPerspective = .day
     @Published var themeFamily: WallpaperThemeFamily = .light
     @Published var blueVariant: BlueThemeVariant = .light
+    @Published var eventFontScale: WallpaperEventFontScale = .large
     @Published var launchAtLogin = false
     @Published var autoRefreshInterval: AutoRefreshInterval = .thirty
 
@@ -71,6 +72,7 @@ final class AppState: ObservableObject {
         suppressSideEffects = true
         themeFamily = themeStore.themeFamily
         blueVariant = themeStore.blueVariant
+        eventFontScale = themeStore.eventFontScale
         language = languageStore.language
         autoRefreshInterval = autoRefreshStore.interval
         launchAtLogin = LaunchAtLoginManager.isEnabled
@@ -104,6 +106,14 @@ final class AppState: ObservableObject {
         scheduleSideEffect {
             self.themeStore.blueVariant = new
             guard self.themeFamily == .blue else { return }
+            await self.refresh()
+        }
+    }
+
+    func handleEventFontScaleChange(from old: WallpaperEventFontScale, to new: WallpaperEventFontScale) {
+        guard !suppressSideEffects, old != new else { return }
+        scheduleSideEffect {
+            self.themeStore.eventFontScale = new
             await self.refresh()
         }
     }
@@ -226,6 +236,7 @@ final class AppState: ObservableObject {
                 perspective: selectedPerspective,
                 themeFamily: themeFamily,
                 blueVariant: blueVariant,
+                eventFontScale: eventFontScale,
                 language: language
             )
 

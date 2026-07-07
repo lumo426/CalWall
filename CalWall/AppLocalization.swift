@@ -85,6 +85,11 @@ enum L10n {
         case addSchedule
         case savedSchedules
         case deleteSchedule
+        case eventFontSize
+        case eventFontSmall
+        case eventFontStandard
+        case eventFontLarge
+        case eventFontExtraLarge
     }
 
     static func text(_ key: Key, language: AppLanguage) -> String {
@@ -226,6 +231,16 @@ enum L10n {
             return pick(language, en: "Saved Schedules", zh: "已添加日程")
         case .deleteSchedule:
             return pick(language, en: "Delete", zh: "删除")
+        case .eventFontSize:
+            return pick(language, en: "Event Font Size", zh: "日程字号")
+        case .eventFontSmall:
+            return pick(language, en: "Small", zh: "小")
+        case .eventFontStandard:
+            return pick(language, en: "Standard", zh: "标准")
+        case .eventFontLarge:
+            return pick(language, en: "Large", zh: "大")
+        case .eventFontExtraLarge:
+            return pick(language, en: "XL", zh: "特大")
         }
     }
 

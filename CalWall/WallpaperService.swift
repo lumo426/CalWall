@@ -7,6 +7,7 @@ final class WallpaperService {
         perspective: CalendarPerspective,
         themeFamily: WallpaperThemeFamily,
         blueVariant: BlueThemeVariant,
+        eventFontScale: WallpaperEventFontScale,
         language: AppLanguage
     ) throws -> URL {
         let screens = NSScreen.screens.isEmpty ? [NSScreen.main].compactMap { $0 } : NSScreen.screens
@@ -31,6 +32,7 @@ final class WallpaperService {
                 screenName: screen.localizedName,
                 themeFamily: themeFamily,
                 blueVariant: blueVariant,
+                eventFontScale: eventFontScale,
                 language: language
             )
 
