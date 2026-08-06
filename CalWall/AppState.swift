@@ -49,6 +49,11 @@ final class AppState: ObservableObject {
     @Published var eventFontScale: WallpaperEventFontScale = .standard
     @Published var launchAtLogin = false
     @Published var autoRefreshInterval: AutoRefreshInterval = .thirty
+    @Published var validationAudience: ValidationAudience = .unsure
+    @Published var validationHelpfulness: ValidationHelpfulness = .notYet
+    @Published var validationBlocker: ValidationBlocker = .repetitiveWallpaper
+    @Published var validationNote = ""
+    @Published private(set) var validationSnapshot = ValidationStore.snapshot()
 
     private let wallpaperService = WallpaperService()
     private let customStore = CustomScheduleStore()
@@ -77,7 +82,32 @@ final class AppState: ObservableObject {
         autoRefreshInterval = autoRefreshStore.interval
         launchAtLogin = LaunchAtLoginManager.isEnabled
         statusMessage = L10n.text(.ready, language: language)
+        ValidationStore.ensureFirstLaunch()
+        validationSnapshot = ValidationStore.snapshot()
         suppressSideEffects = false
+    }
+
+    func saveValidationFeedback() {
+        ValidationStore.saveFeedback(ValidationFeedback(
+            audience: validationAudience,
+            helpfulness: validationHelpfulness,
+            blocker: validationBlocker,
+            note: validationNote.trimmingCharacters(in: .whitespacesAndNewlines),
+            timestamp: Date()
+        ))
+        validationSnapshot = ValidationStore.snapshot()
+        statusMessage = L10n.text(.feedbackSaved, language: language)
+    }
+
+    func exportValidationReport() {
+        do {
+            _ = try ValidationStore.exportReport(language: language)
+            statusMessage = L10n.text(.feedbackSaved, language: language)
+        } catch let error as ScheduleBackupError {
+            statusMessage = error.localizedDescription(language: language)
+        } catch {
+            statusMessage = L10n.text(.failed(error.localizedDescription), language: language)
+        }
     }
 
     func handleLanguageChange(from old: AppLanguage, to new: AppLanguage) {
@@ -167,6 +197,26 @@ final class AppState: ObservableObject {
         }
     }
 
+    var todayScheduleItems: [CustomScheduleItem] {
+        scheduleItems.filter { Calendar.current.isDateInToday($0.startDate) }
+    }
+
+    var nextScheduleItem: CustomScheduleItem? {
+        let cutoff = Date().addingTimeInterval(-30 * 60)
+        return todayScheduleItems.first { $0.isAllDay || $0.startDate >= cutoff }
+    }
+
+    func prepareQuickAdd() {
+        let date = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date()
+        let calendar = Calendar.current
+        draftYear = calendar.component(.year, from: date)
+        draftMonth = calendar.component(.month, from: date)
+        draftDay = calendar.component(.day, from: date)
+        draftHour = calendar.component(.hour, from: date)
+        draftMinute = (calendar.component(.minute, from: date) / 5) * 5
+        draftIsAllDay = false
+    }
+
     func addScheduleItem() async {
         let title = draftTitle.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         guard !title.isEmpty else { return }
@@ -177,12 +227,16 @@ final class AppState: ObservableObject {
         scheduleItems.sort { $0.startDate < $1.startDate }
         customStore.setItems(scheduleItems)
         draftTitle = ""
+        ValidationStore.record(.scheduleCreated)
+        validationSnapshot = ValidationStore.snapshot()
         await refresh()
     }
 
     func deleteScheduleItem(_ item: CustomScheduleItem) async {
         scheduleItems.removeAll { $0.id == item.id }
         customStore.setItems(scheduleItems)
+        ValidationStore.record(.scheduleDeleted)
+        validationSnapshot = ValidationStore.snapshot()
         await refresh()
     }
 
@@ -221,6 +275,11 @@ final class AppState: ObservableObject {
         startAutoRefresh()
     }
 
+    func recordManualRefresh() {
+        ValidationStore.record(.manualRefresh)
+        validationSnapshot = ValidationStore.snapshot()
+    }
+
     func refresh() async {
         isWorking = true
         defer { isWorking = false }
@@ -240,11 +299,17 @@ final class AppState: ObservableObject {
                 language: language
             )
 
+            if !scheduleItems.isEmpty {
+                ValidationStore.record(.wallpaperSetSuccess)
+                validationSnapshot = ValidationStore.snapshot()
+            }
             statusMessage = L10n.text(
                 .wallpaperUpdated(selectedPerspective.title(language: language), events.count),
                 language: language
             )
         } catch {
+            ValidationStore.record(.wallpaperSetFailure)
+            validationSnapshot = ValidationStore.snapshot()
             let message = (error as? WallpaperError)?.localizedDescription(language: language)
                 ?? error.localizedDescription
             statusMessage = L10n.text(.failed(message), language: language)

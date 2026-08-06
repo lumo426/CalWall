@@ -6,12 +6,22 @@ struct CalWallApp: App {
 
     var body: some Scene {
         MenuBarExtra("CalWall", systemImage: "calendar") {
-            ContentView()
+            QuickScheduleView()
                 .environmentObject(appState)
                 .task {
                     await appState.bootstrap()
                 }
         }
         .menuBarExtraStyle(.window)
+
+        Window("CalWall Settings", id: "settings") {
+            ContentView()
+                .environmentObject(appState)
+                .task {
+                    await appState.bootstrap()
+                }
+        }
+        .defaultSize(width: 500, height: 760)
+        .windowResizability(.contentSize)
     }
 }

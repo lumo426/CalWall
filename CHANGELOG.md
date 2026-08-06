@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-08-06
+
+### Added
+
+- **菜单栏快速日程 / Quick schedule panel**：随时查看下一日程、今日日程和距离开始时间
+- **快速添加 / Quick add**：直接从菜单栏填写标题、日期与时间
+- **独立设置窗口 / Separate settings window**：日程查看与主题、自动化、备份设置分离
+- **隐私优先的本地验证 / Privacy-first local validation**：记录匿名操作计数、D7 状态与用户主动反馈，可导出报告；不包含日程标题或具体日期
+- 为快速面板与完整设置页加入 SwiftUI Preview
+
+### Changed
+
+- 菜单栏默认入口从完整控制面板改为轻量快速日程视图
+- README 改为完整中英文介绍，并补充目标用户、隐私和新版使用方式
+- 版本号升级至 1.2.0（Build 6）
+
 ## [1.1.2] — 2026-07-07
 
 ### Fixed
@@ -58,7 +74,8 @@ GitHub Release: [v.1.0.0](https://github.com/lumo426/CalWall/releases/tag/v.1.0.
 - 每 30 分钟自动刷新壁纸
 - 纯本地运行，不读取 Apple 日历
 
-[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/lumo426/CalWall/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/lumo426/CalWall/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/lumo426/CalWall/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/lumo426/CalWall/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/lumo426/CalWall/compare/v.1.0.0...v1.1.0

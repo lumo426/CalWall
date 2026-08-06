@@ -90,6 +90,43 @@ enum L10n {
         case eventFontStandard
         case eventFontLarge
         case eventFontExtraLarge
+        case validation
+        case validationHint
+        case audienceQuestion
+        case audienceStableDesktop
+        case audienceWallpaperChanger
+        case audienceUnsure
+        case helpfulnessQuestion
+        case helpfulnessHelped
+        case helpfulnessNotYet
+        case helpfulnessDidNotHelp
+        case blockerQuestion
+        case blockerNoNeed
+        case blockerRepetitiveWallpaper
+        case blockerManualEntry
+        case blockerInstallation
+        case blockerUnclearValue
+        case blockerOther
+        case feedbackNotePlaceholder
+        case saveFeedback
+        case feedbackSaved
+        case exportValidationReport
+        case validationReport
+        case validationD7Pending
+        case validationD7Active
+        case validationD7Inactive
+        case validationNoActivation
+        case firstLaunchGuide
+        case firstLaunchGuideHint
+        case nextSchedule
+        case noUpcomingSchedule
+        case inMinutes(Int)
+        case startedMinutesAgo(Int)
+        case todaySchedule
+        case noScheduleToday
+        case quickAdd
+        case openSettings
+        case manageSchedules
     }
 
     static func text(_ key: Key, language: AppLanguage) -> String {
@@ -241,6 +278,80 @@ enum L10n {
             return pick(language, en: "Large", zh: "大")
         case .eventFontExtraLarge:
             return pick(language, en: "XL", zh: "特大")
+        case .validation:
+            return pick(language, en: "Product validation", zh: "产品验证")
+        case .validationHint:
+            return pick(language, en: "CalWall is testing whether a visible desktop plan helps you remember important things. Your data stays on this Mac.", zh: "CalWall 正在验证：把计划放在桌面上，是否能帮助你记住重要事情。数据只保存在这台 Mac 上。")
+        case .audienceQuestion:
+            return pick(language, en: "Which description fits you best?", zh: "下面哪种描述最符合你？")
+        case .audienceStableDesktop:
+            return pick(language, en: "I keep one desktop setup for work", zh: "我通常保持一个稳定的工作桌面")
+        case .audienceWallpaperChanger:
+            return pick(language, en: "I like changing wallpapers often", zh: "我喜欢经常更换电脑壁纸")
+        case .audienceUnsure:
+            return pick(language, en: "Not sure yet", zh: "还不确定")
+        case .helpfulnessQuestion:
+            return pick(language, en: "Has CalWall helped you remember something important?", zh: "CalWall 是否真的帮你记起过重要事情？")
+        case .helpfulnessHelped:
+            return pick(language, en: "Yes, it helped", zh: "是，确实帮到过")
+        case .helpfulnessNotYet:
+            return pick(language, en: "Not enough time to tell", zh: "使用时间还不够")
+        case .helpfulnessDidNotHelp:
+            return pick(language, en: "No, it did not help", zh: "没有帮到")
+        case .blockerQuestion:
+            return pick(language, en: "If you stopped using it, why?", zh: "如果你停止使用，最可能的原因是？")
+        case .blockerNoNeed:
+            return pick(language, en: "I don't have enough plans to track", zh: "我没有足够多的日程需要追踪")
+        case .blockerRepetitiveWallpaper:
+            return pick(language, en: "The wallpaper feels repetitive", zh: "日程壁纸会让我觉得单调")
+        case .blockerManualEntry:
+            return pick(language, en: "Adding plans manually is inconvenient", zh: "手动添加日程不方便")
+        case .blockerInstallation:
+            return pick(language, en: "Installation or permissions got in the way", zh: "安装或权限问题阻碍了我")
+        case .blockerUnclearValue:
+            return pick(language, en: "I didn't notice enough value", zh: "我没有感受到足够价值")
+        case .blockerOther:
+            return pick(language, en: "Other", zh: "其他")
+        case .feedbackNotePlaceholder:
+            return pick(language, en: "What happened? (optional)", zh: "发生了什么？（可选）")
+        case .saveFeedback:
+            return pick(language, en: "Save feedback", zh: "保存反馈")
+        case .feedbackSaved:
+            return pick(language, en: "Feedback saved locally.", zh: "反馈已保存在本机。")
+        case .exportValidationReport:
+            return pick(language, en: "Export validation report", zh: "导出验证报告")
+        case .validationReport:
+            return pick(language, en: "Export anonymous report", zh: "导出匿名报告")
+        case .validationD7Pending:
+            return pick(language, en: "D7 result pending", zh: "D7 结果待产生")
+        case .validationD7Active:
+            return pick(language, en: "D7 active", zh: "D7 仍在使用")
+        case .validationD7Inactive:
+            return pick(language, en: "D7 inactive", zh: "D7 未继续使用")
+        case .validationNoActivation:
+            return pick(language, en: "Add a schedule and set a wallpaper to start validation.", zh: "添加日程并成功设置一次壁纸后，才会开始验证。")
+        case .firstLaunchGuide:
+            return pick(language, en: "Start with one important plan", zh: "先添加一个重要日程")
+        case .firstLaunchGuideHint:
+            return pick(language, en: "Try a plan you genuinely need to remember this week. CalWall works best as a calm, stable work desktop—not as a wallpaper collection.", zh: "试着添加一个本周确实需要记住的计划。CalWall 更适合稳定的工作桌面，而不是壁纸收藏工具。")
+        case .nextSchedule:
+            return pick(language, en: "Up next", zh: "下一日程")
+        case .noUpcomingSchedule:
+            return pick(language, en: "Nothing else scheduled today", zh: "今天没有更多日程")
+        case .inMinutes(let minutes):
+            return pick(language, en: "in \(minutes) min", zh: "还有 \(minutes) 分钟")
+        case .startedMinutesAgo(let minutes):
+            return pick(language, en: "started \(minutes) min ago", zh: "已开始 \(minutes) 分钟")
+        case .todaySchedule:
+            return pick(language, en: "Today", zh: "今天")
+        case .noScheduleToday:
+            return pick(language, en: "No schedules today", zh: "今天还没有日程")
+        case .quickAdd:
+            return pick(language, en: "Quick add", zh: "快速添加")
+        case .openSettings:
+            return pick(language, en: "Settings…", zh: "设置…")
+        case .manageSchedules:
+            return pick(language, en: "Manage schedules", zh: "管理日程")
         }
     }
 

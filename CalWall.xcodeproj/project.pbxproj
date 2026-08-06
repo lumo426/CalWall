@@ -19,6 +19,7 @@
 		A0000000000000000000000C /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* AppPreferences.swift */; };
 		A0000000000000000000000D /* CustomScheduleItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* CustomScheduleItem.swift */; };
 		A0000000000000000000000E /* ScheduleDateTimeControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* ScheduleDateTimeControls.swift */; };
+		A0000000000000000000000F /* QuickScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* QuickScheduleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		A0000000000000000000001C /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		A0000000000000000000001D /* CustomScheduleItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScheduleItem.swift; sourceTree = "<group>"; };
 		A0000000000000000000001E /* ScheduleDateTimeControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleDateTimeControls.swift; sourceTree = "<group>"; };
+		A0000000000000000000001F /* QuickScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickScheduleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				A00000000000000000000011 /* CalWallApp.swift */,
 				A00000000000000000000016 /* AppState.swift */,
 				A00000000000000000000017 /* ContentView.swift */,
+				A0000000000000000000001F /* QuickScheduleView.swift */,
 				A00000000000000000000012 /* CalendarEvent.swift */,
 				A00000000000000000000014 /* WallpaperService.swift */,
 				A00000000000000000000015 /* WallpaperRenderer.swift */,
@@ -165,6 +168,7 @@
 				A0000000000000000000000C /* AppPreferences.swift in Sources */,
 				A0000000000000000000000D /* CustomScheduleItem.swift in Sources */,
 				A0000000000000000000000E /* ScheduleDateTimeControls.swift in Sources */,
+				A0000000000000000000000F /* QuickScheduleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,7 +293,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = SVV52NNVT9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -300,7 +304,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yeseon.CalWall;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

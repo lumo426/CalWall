@@ -20,7 +20,7 @@
 **仓库：** https://github.com/lumo426/CalWall  
 **本地路径：** `/Users/houyixuan/Projects/CalWall_Dopamine_Custom`  
 **Bundle ID：** `com.yeseon.CalWall`  
-**当前版本：** 1.1.0 (Build 2)
+**当前版本：** 1.2.0 (Build 6)
 
 ---
 

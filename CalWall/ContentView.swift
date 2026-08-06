@@ -45,6 +45,15 @@ struct ContentView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
+                Text(L10n.text(.firstLaunchGuide, language: lang))
+                    .font(.headline)
+                Text(L10n.text(.firstLaunchGuideHint, language: lang))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.text(.wallpaperView, language: lang))
                     .font(.headline)
                 Picker(L10n.text(.wallpaperView, language: lang), selection: $appState.selectedPerspective) {
@@ -190,6 +199,7 @@ struct ContentView: View {
 
             HStack(spacing: 10) {
                 Button {
+                    appState.recordManualRefresh()
                     Task { await appState.refresh() }
                 } label: {
                     Label(
@@ -242,6 +252,73 @@ struct ContentView: View {
                     }
                 }
                 .disabled(appState.isWorking)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(L10n.text(.validation, language: lang))
+                    .font(.headline)
+                Text(L10n.text(.validationHint, language: lang))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text(L10n.text(.audienceQuestion, language: lang))
+                    .font(.subheadline.weight(.medium))
+                Picker(L10n.text(.audienceQuestion, language: lang), selection: $appState.validationAudience) {
+                    Text(L10n.text(.audienceStableDesktop, language: lang)).tag(ValidationAudience.stableDesktop)
+                    Text(L10n.text(.audienceWallpaperChanger, language: lang)).tag(ValidationAudience.wallpaperChanger)
+                    Text(L10n.text(.audienceUnsure, language: lang)).tag(ValidationAudience.unsure)
+                }
+                .labelsHidden()
+
+                Text(L10n.text(.helpfulnessQuestion, language: lang))
+                    .font(.subheadline.weight(.medium))
+                Picker(L10n.text(.helpfulnessQuestion, language: lang), selection: $appState.validationHelpfulness) {
+                    Text(L10n.text(.helpfulnessHelped, language: lang)).tag(ValidationHelpfulness.helped)
+                    Text(L10n.text(.helpfulnessNotYet, language: lang)).tag(ValidationHelpfulness.notYet)
+                    Text(L10n.text(.helpfulnessDidNotHelp, language: lang)).tag(ValidationHelpfulness.didNotHelp)
+                }
+                .labelsHidden()
+
+                Text(L10n.text(.blockerQuestion, language: lang))
+                    .font(.subheadline.weight(.medium))
+                Picker(L10n.text(.blockerQuestion, language: lang), selection: $appState.validationBlocker) {
+                    Text(L10n.text(.blockerNoNeed, language: lang)).tag(ValidationBlocker.noNeed)
+                    Text(L10n.text(.blockerRepetitiveWallpaper, language: lang)).tag(ValidationBlocker.repetitiveWallpaper)
+                    Text(L10n.text(.blockerManualEntry, language: lang)).tag(ValidationBlocker.manualEntry)
+                    Text(L10n.text(.blockerInstallation, language: lang)).tag(ValidationBlocker.installation)
+                    Text(L10n.text(.blockerUnclearValue, language: lang)).tag(ValidationBlocker.unclearValue)
+                    Text(L10n.text(.blockerOther, language: lang)).tag(ValidationBlocker.other)
+                }
+                .labelsHidden()
+
+                TextField(L10n.text(.feedbackNotePlaceholder, language: lang), text: $appState.validationNote)
+                    .textFieldStyle(.roundedBorder)
+                HStack {
+                    Button(L10n.text(.saveFeedback, language: lang)) {
+                        appState.saveValidationFeedback()
+                    }
+                    Button(L10n.text(.validationReport, language: lang)) {
+                        appState.exportValidationReport()
+                    }
+                }
+
+                let snapshot = appState.validationSnapshot
+                if !snapshot.isActivated {
+                    Text(L10n.text(.validationNoActivation, language: lang))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if !snapshot.isD7Eligible() {
+                    Text(L10n.text(.validationD7Pending, language: lang))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(L10n.text(snapshot.d7Active() ? .validationD7Active : .validationD7Inactive, language: lang))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Divider()
@@ -313,5 +390,12 @@ struct ContentView: View {
             formatter.dateFormat = calendar.component(.year, from: event.startDate) == calendar.component(.year, from: Date()) ? "M/d" : "yyyy/M/d"
         }
         return formatter.string(from: event.startDate)
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(AppState())
     }
 }
